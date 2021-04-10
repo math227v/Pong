@@ -3,10 +3,54 @@
 #define potPin A0
 
 #define playerWidth 5
+#define playerHeight 20
+
 #define ballSize 10
 #define ballRootSize 5
 
+#define screenWidth 254
+#define maxHeight 	127
+#define minHeight 	127
+#define minWidth  	127
+#define maxWidth  	127
+
+#define maxPlayerSpeed 10
+
 int delayTime = 1000;
+
+class Player {
+	public:
+		int posX;
+		int posY;
+		int vel;
+		int acc;
+
+		Player(int x) {
+			posY = 0;
+			posX = x;
+			vel = 0;
+			acc = 0;
+		}
+
+		void update() {
+			vel += acc;
+			posY += vel;
+
+			if (posY + (playerHeight / 2) < minHeight || posY - (playerHeight / 2) > maxHeight) {
+				constrain(posY, minHeight, maxHeight);
+			}
+
+			acc = 0;
+		}
+
+		void move(int y) {
+			acc += y;
+			acc = constrain(acc, -maxPlayerSpeed, maxPlayerSpeed);
+		}
+};
+
+Player player1( minWidth + playerWidth);
+Player player2( maxWidth - playerWidth);
 
 void setup() {
 	pinMode(xPin, OUTPUT);
@@ -30,8 +74,6 @@ void loop() {
 		vertex( 127, -127);
 		vertex( 127,  127);
 		vertex(-127,  127);
-
-		offset += 0.5;
 	}
 }
 
