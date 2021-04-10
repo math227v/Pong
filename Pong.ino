@@ -16,10 +16,6 @@
 
 #define maxPlayerSpeed 10
 
-#define noCollision		0
-#define playerBounce 	1
-#define playerDead 		2
-
 // Initialising with a default
 int delayTime = 1000;
 
@@ -66,7 +62,7 @@ class Player {
 };
 
 class Ball {
-	public: 
+	public:
 		int posX;
 		int posY;
 
@@ -86,43 +82,15 @@ class Ball {
 			posY += velY;
 
 			// Collision Detection
+			if (posX - ballSize == -127) {
+				
+			}
 
-			// Y Axis
+			if (posX + ballSize ==  127) {
+				// Check Player 2
+			}
+
 			if (abs(posY) + ballSize == 127) { velY *= -1; }
-
-			switch (detectPlayerCollision(p1))
-			{
-			case noCollision:
-				break;
-			
-			case playerBounce:
-				// velX *= -1;
-				break;
-
-			case playerDead:
-				velX *= -1;
-				break;
-
-			default:
-				break;
-			}
-
-			switch (detectPlayerCollision(p2))
-			{
-			case noCollision:
-				break;
-			
-			case playerBounce:
-				velX *= -1;
-				break;
-
-			case playerDead:
-				velX *= -1;
-				break;
-
-			default:
-				break;
-			}
 		}
 
 		void move() {
@@ -130,12 +98,8 @@ class Ball {
 		}
 
 	private:
-		int detectPlayerCollision(Player player) {
-			if (abs(player.posX) - (abs(posX) + (ballSize / 2)) <= 0 ) {
-				return playerBounce;
-			} else { 
-				return noCollision; 
-			};
+		bool hitPlayer(Player player) {
+
 		}
 };
 
@@ -164,6 +128,8 @@ void loop() {
 	int p2PosY1 = player2.posY - (playerHeight / 2);
 	int p2PosY2 = player2.posY + (playerHeight / 2);
 
+
+
 	vertex(-127, -127);		// LEFT		BOTTOM
 
 	// Render Player 1
@@ -174,13 +140,13 @@ void loop() {
 
 	vertex(-127,  127);		// LEFT		TOP
 	vertex( 127,  127);		// RIGHT	TOP
-	
+
 	// Render Player 1
 	vertex(127, p2PosY2);
 	vertex(player2.posX, p2PosY2);
 	vertex(player2.posX, p2PosY1);
 	vertex(127, p2PosY1);
-	
+
 	vertex( 127, -127);		// RIGHT	BOTTOM
 
 	// Render Ball
@@ -217,7 +183,7 @@ int prevY = 0;
 
 void vertex(int x, int y) {
 	// float distance = sqrt(pow(prevX - x, 2) + pow(prevY - y, 2)) + 10;
-	delayTime = map(analogRead(potPin), 0, 1024, 0, 2000);	
+	delayTime = map(analogRead(potPin), 0, 1024, 0, 2000);
 	analogWrite(xPin, constrain(x, -127, 127) + 127);
 	analogWrite(yPin, constrain(y, -127, 127) + 127);
 
