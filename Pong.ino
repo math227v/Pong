@@ -5,8 +5,10 @@
 #define playerWidth 5
 #define playerHeight 50
 
+#define player1Pin A1
+#define player2Pin A2
+
 #define ballSize 10
-#define ballRootSize 5
 
 #define screenWidth 254
 #define minHeight  -127
@@ -23,35 +25,20 @@ class Player {
 	public:
 		int posX;
 		int posY;
-		int vel;
-		int acc;
 
 		Player(int x) {
 			posY = 0;
 			posX = x;
-			vel = 0;
-			acc = 1;
 		}
 
 		// Basic movement algorithm
-		void update() {
-			vel += acc;
-			posY += vel;
+		void update(int pos) {
+			posY = map(pos, 0, 1024, -127, 127);
 
 			// Limit player position to within screen
 			if (outOfBounds()) {
 				posY = constrain(posY, minHeight + (playerHeight / 2) - 1, maxHeight - (playerHeight / 2) + 1);
-				if (outOfBounds()) {
-					vel *= -1;
-				}
 			}
-
-			acc = 0;
-		}
-
-		void move(int y) {
-			acc += y;
-			acc = constrain(acc, -maxPlayerSpeed, maxPlayerSpeed);
 		}
 
 	private:
@@ -73,8 +60,8 @@ class Ball {
 			posX = 0;
 			posY = 0;
 
-			velX = 1;
-			velY = 1;
+			velX = 2;
+			velY = 3;
 		}
 
 		void update(Player p1, Player p2) {
@@ -82,24 +69,38 @@ class Ball {
 			posY += velY;
 
 			// Collision Detection
-			if (posX - ballSize == -127) {
-				
+			if (posX - (ballSize / 2) <= -127) {
+				int distanceAbs = abs(p1.posY - posY);
+				int distance = p1.posY - posY;
+				if (distanceAbs < playerHeight / 2) {
+					// Hit
+					velX *= -1;
+					velY = -distance / 4;
+				} else {
+					reset();
+				}
 			}
 
-			if (posX + ballSize ==  127) {
-				// Check Player 2
+			if (posX + (ballSize / 2) >=  127) {
+				int distanceAbs = abs(p2.posY - posY);
+				int distance = p2.posY - posY;
+				if (distanceAbs < playerHeight / 2) {
+					// Hit
+					velX *= -1;
+					velY = -distance / 4;
+				} else {
+					reset();
+				}
 			}
 
-			if (abs(posY) + ballSize == 127) { velY *= -1; }
-		}
-
-		void move() {
-
+			if (abs(posY) + (ballSize / 2) >= 127) { velY *= -1; }
 		}
 
 	private:
-		bool hitPlayer(Player player) {
-
+		void reset() {
+			posX = 0;
+			posY = 0;
+			velX *= -1;
 		}
 };
 
@@ -168,13 +169,10 @@ void loop() {
 
 
 
-	player1.move(0);
-	player1.update();
 
-	player2.move(0);
-	player2.update();
+	player1.update(analogRead(player1Pin));
+	player2.update(analogRead(player2Pin));
 
-	ball.move();
 	ball.update(player1, player2);
 }
 
