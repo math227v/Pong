@@ -1,1 +1,0 @@
-Oscilloscope Pong © 2021 by Mathias M. Lauridsen is licensed under CC BY-SA 4.0 
