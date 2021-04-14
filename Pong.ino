@@ -102,6 +102,28 @@ class Ball {
 			posY = 0;
 			velX *= -1;
 		}
+
+		
+};
+
+class CustomVector {
+	public:
+		float x;
+		float y;
+
+		CustomVector(float _x, float _y) {
+			x = _x;
+			y = _y;
+		}
+
+		float mag() {
+			return sqrt(pow(x, 2) + pow(y, 2));
+		}
+
+		float normalise() {
+			x /= mag();
+			y /= mag();
+		}
 };
 
 Player player1( minWidth + playerWidth);
