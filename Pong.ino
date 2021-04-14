@@ -21,95 +21,15 @@
 // Initialising with a default
 int delayTime = 1000;
 
-class Player {
-	public:
-		int posX;
-		int posY;
-
-		Player(int x) {
-			posY = 0;
-			posX = x;
-		}
-
-		// Basic movement algorithm
-		void update(int pos) {
-			posY = map(pos, 0, 1024, -127, 127);
-
-			// Limit player position to within screen
-			if (outOfBounds()) {
-				posY = constrain(posY, minHeight + (playerHeight / 2) - 1, maxHeight - (playerHeight / 2) + 1);
-			}
-		}
-
-	private:
-		boolean outOfBounds() {
-			bool result = ((posY - (playerHeight / 2)) < minHeight || (posY + (playerHeight / 2)) > maxHeight);
-			return result;
-		}
-};
-
-class Ball {
-	public:
-		int posX;
-		int posY;
-
-		int velX;
-		int velY;
-
-		Ball() {
-			posX = 0;
-			posY = 0;
-
-			velX = 2;
-			velY = 3;
-		}
-
-		void update(Player p1, Player p2) {
-			posX += velX;
-			posY += velY;
-
-			// Collision Detection
-			if (posX - (ballSize / 2) <= -127) {
-				int distanceAbs = abs(p1.posY - posY);
-				int distance = p1.posY - posY;
-				if (distanceAbs < playerHeight / 2) {
-					// Hit
-					velX *= -1;
-					velY = -distance / 4;
-				} else {
-					reset();
-				}
-			}
-
-			if (posX + (ballSize / 2) >=  127) {
-				int distanceAbs = abs(p2.posY - posY);
-				int distance = p2.posY - posY;
-				if (distanceAbs < playerHeight / 2) {
-					// Hit
-					velX *= -1;
-					velY = -distance / 4;
-				} else {
-					reset();
-				}
-			}
-
-			if (abs(posY) + (ballSize / 2) >= 127) { velY *= -1; }
-		}
-
-	private:
-		void reset() {
-			posX = 0;
-			posY = 0;
-			velX *= -1;
-		}
-
-		
-};
-
 class CustomVector {
 	public:
 		float x;
 		float y;
+
+		CustomVector() {
+			x = 0;
+			y = 0;
+		}
 
 		CustomVector(float _x, float _y) {
 			x = _x;
@@ -120,10 +40,94 @@ class CustomVector {
 			return sqrt(pow(x, 2) + pow(y, 2));
 		}
 
-		float normalise() {
-			x /= mag();
-			y /= mag();
+		void normalise() {
+			float magnitude = mag();
+			if (magnitude != 0) {
+				x /= magnitude;
+				y /= magnitude;
+			}
 		}
+
+		void add(CustomVector v) {
+			x += v.x;
+			y += v.y;
+		}
+};
+
+class Player {
+	public:
+		CustomVector pos;
+
+		Player(int x) {
+			pos = CustomVector(x, 0);
+		}
+
+		// Basic movement algorithm
+		void update(int _pos) {
+			pos.y = map(_pos, 0, 1024, -127, 127);
+
+			// Limit player position to within screen
+			if (outOfBounds()) {
+				pos.y= constrain(pos.y, minHeight + (playerHeight / 2) - 1, maxHeight - (playerHeight / 2) + 1);
+			}
+		}
+
+	private:
+		boolean outOfBounds() {
+			bool result = ((pos.y- (playerHeight / 2)) < minHeight || (pos.y+ (playerHeight / 2)) > maxHeight);
+			return result;
+		}
+};
+
+class Ball {
+	public:
+		CustomVector pos;
+		CustomVector vel;
+
+		Ball() {
+			pos = CustomVector(0, 0);
+			vel = CustomVector(1, 1);
+			vel.normalise();
+		}
+
+		void update(Player p1, Player p2) {
+			pos.add(vel);
+
+			// Collision Detection
+			if (pos.x - (ballSize / 2) <= -127) {
+				int distanceAbs = abs(p1.pos.y- pos.y);
+				int distance = p1.pos.y- pos.y;
+				if (distanceAbs < playerHeight / 2) {
+					// Hit
+					vel.x *= -1;
+					vel.y = -distance / 4;
+				} else {
+					reset();
+				}
+			}
+
+			if (pos.x + (ballSize / 2) >=  127) {
+				int distanceAbs = abs(p2.pos.y- pos.y);
+				int distance = p2.pos.y- pos.y;
+				if (distanceAbs < playerHeight / 2) {
+					// Hit
+					vel.x *= -1;
+					vel.y = -distance / 4;
+				} else {
+					reset();
+				}
+			}
+
+			if (abs(pos.y) + (ballSize / 2) >= 127) { vel.y *= -1; }
+		}
+
+	private:
+		void reset() {
+			pos = CustomVector(0, 0);
+			vel.x *= -1;
+		}
+
+		
 };
 
 Player player1( minWidth + playerWidth);
@@ -145,11 +149,11 @@ void setup() {
 float offset = 0;
 
 void loop() {
-	int p1PosY1 = player1.posY - (playerHeight / 2);
-	int p1PosY2 = player1.posY + (playerHeight / 2);
+	int p1PosY1 = player1.pos.y- (playerHeight / 2);
+	int p1PosY2 = player1.pos.y+ (playerHeight / 2);
 
-	int p2PosY1 = player2.posY - (playerHeight / 2);
-	int p2PosY2 = player2.posY + (playerHeight / 2);
+	int p2PosY1 = player2.pos.y- (playerHeight / 2);
+	int p2PosY2 = player2.pos.y+ (playerHeight / 2);
 
 
 
@@ -157,8 +161,8 @@ void loop() {
 
 	// Render Player 1
 	vertex(-127, p1PosY1);
-	vertex(player1.posX, p1PosY1);
-	vertex(player1.posX, p1PosY2);
+	vertex(player1.pos.x, p1PosY1);
+	vertex(player1.pos.x, p1PosY2);
 	vertex(-127, p1PosY2);
 
 	vertex(-127,  127);		// LEFT		TOP
@@ -166,28 +170,28 @@ void loop() {
 
 	// Render Player 1
 	vertex(127, p2PosY2);
-	vertex(player2.posX, p2PosY2);
-	vertex(player2.posX, p2PosY1);
+	vertex(player2.pos.x, p2PosY2);
+	vertex(player2.pos.x, p2PosY1);
 	vertex(127, p2PosY1);
 
 	vertex( 127, -127);		// RIGHT	BOTTOM
 
 	// Render Ball
-	int ballPosXL = ball.posX - (ballSize / 2);
-	int ballPosXR = ball.posX + (ballSize / 2);
-	int ballPosYB = ball.posY - (ballSize / 2);
-	int ballPosYT = ball.posY + (ballSize / 2);
+	int ballPosXL = ball.pos.x - (ballSize / 2);
+	int ballPosXR = ball.pos.x + (ballSize / 2);
+	int ballPosYB = ball.pos.y - (ballSize / 2);
+	int ballPosYT = ball.pos.y + (ballSize / 2);
 
-	vertex(ball.posX, -127);
-	vertex(ball.posX, ballPosYB);
+	vertex(ball.pos.x, -127);
+	vertex(ball.pos.x, ballPosYB);
 
 	vertex(ballPosXL, ballPosYB);
 	vertex(ballPosXL, ballPosYT);
 	vertex(ballPosXR, ballPosYT);
 	vertex(ballPosXR, ballPosYB);
 
-	vertex(ball.posX, ballPosYB);
-	vertex(ball.posX, -127);
+	vertex(ball.pos.x, ballPosYB);
+	vertex(ball.pos.x, -127);
 
 
 
