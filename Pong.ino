@@ -2,14 +2,14 @@
 #define yPin 5
 #define potPin A0
 
-#define playerWidth 5
+#define playerWidth 20
 #define playerHeight 50
 
 #define player1Pin A1
 #define player2Pin A2
 
 #define ballSize 10
-#define ballSpeedMultiplier 10
+#define ballSpeedMultiplier 6
 
 #define screenWidth 254
 #define minHeight  -127
@@ -17,7 +17,7 @@
 #define minWidth   -127
 #define maxWidth  	127
 
-#define maxPlayerSpeed 10
+#define drawBorder
 
 // Initialising with a default
 int delayTime = 1000;
@@ -52,6 +52,11 @@ class CustomVector {
 		void mult(float n) {
 			x *= n;
 			y *= n;
+		}
+
+		void setMag(float n) {
+			normalise();
+			mult(n);
 		}
 
 		void add(CustomVector v) {
@@ -93,8 +98,7 @@ class Ball {
 		Ball() {
 			pos = CustomVector(0, 0);
 			vel = CustomVector(1, 1);
-			vel.normalise();
-			vel.mult(ballSpeedMultiplier);
+			vel.setMag(ballSpeedMultiplier);
 		}
 
 		void update(Player p1, Player p2) {
@@ -111,14 +115,13 @@ class Ball {
 		}
 
 		void handleHit(Player player) {
-			int distanceAbs = abs(player.pos.y- pos.y);
+			int distanceAbs = abs(player.pos.y - pos.y + (ballSize / 2));
 			int distance = player.pos.y- pos.y;
 			if (distanceAbs < playerHeight / 2) {
 				// Hit player
 				vel.x *= -1;
-				vel.y = -distance / 4;
-				vel.normalise();
-				vel.mult(ballSpeedMultiplier);
+				vel.y = -distance / 3.5;
+				vel.setMag(ballSpeedMultiplier);
 			} else {
 				// Hit wall
 				reset();
@@ -127,7 +130,7 @@ class Ball {
 
 	private:
 		void reset() {
-			pos = CustomVector(0, 0);
+			pos.x = 0;
 			vel.x *= -1;
 		}
 
@@ -150,8 +153,6 @@ void setup() {
 	#endif
 }
 
-float offset = 0;
-
 void loop() {
 	int p1PosY1 = player1.pos.y- (playerHeight / 2);
 	int p1PosY2 = player1.pos.y+ (playerHeight / 2);
@@ -160,25 +161,31 @@ void loop() {
 	int p2PosY2 = player2.pos.y+ (playerHeight / 2);
 
 
+	#ifdef drawBorder
+		vertex(-127, -127);		// LEFT		BOTTOM
 
-	vertex(-127, -127);		// LEFT		BOTTOM
+		// Render Player 1
+		vertex(-127, p1PosY1);
+	#endif
 
-	// Render Player 1
-	vertex(-127, p1PosY1);
 	vertex(player1.pos.x, p1PosY1);
 	vertex(player1.pos.x, p1PosY2);
 	vertex(-127, p1PosY2);
 
-	vertex(-127,  127);		// LEFT		TOP
-	vertex( 127,  127);		// RIGHT	TOP
+	#ifdef drawBorder
+		vertex(-127,  127);		// LEFT		TOP
+		vertex( 127,  127);		// RIGHT	TOP
 
-	// Render Player 1
-	vertex(127, p2PosY2);
+		// Render Player 2
+		vertex(127, p2PosY2);
+	#endif
 	vertex(player2.pos.x, p2PosY2);
 	vertex(player2.pos.x, p2PosY1);
-	vertex(127, p2PosY1);
+	#ifdef drawBorder
+		vertex(127, p2PosY1);
 
-	vertex( 127, -127);		// RIGHT	BOTTOM
+		vertex( 127, -127);		// RIGHT	BOTTOM
+	#endif
 
 	// Render Ball
 	int ballPosXL = ball.pos.x - (ballSize / 2);
@@ -186,17 +193,20 @@ void loop() {
 	int ballPosYB = ball.pos.y - (ballSize / 2);
 	int ballPosYT = ball.pos.y + (ballSize / 2);
 
-	vertex(ball.pos.x, -127);
-	vertex(ball.pos.x, ballPosYB);
+	#ifdef drawBorder
+		vertex(ball.pos.x, -127);
+		vertex(ball.pos.x, ballPosYB);
+	#endif
 
 	vertex(ballPosXL, ballPosYB);
 	vertex(ballPosXL, ballPosYT);
 	vertex(ballPosXR, ballPosYT);
 	vertex(ballPosXR, ballPosYB);
 
-	vertex(ball.pos.x, ballPosYB);
-	vertex(ball.pos.x, -127);
-
+	#ifdef drawBorder
+		vertex(ball.pos.x, ballPosYB);
+		vertex(ball.pos.x, -127);
+	#endif
 
 
 
