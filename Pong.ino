@@ -48,6 +48,11 @@ class CustomVector {
 			}
 		}
 
+		void mult(float n) {
+			x *= n;
+			y *= n;
+		}
+
 		void add(CustomVector v) {
 			x += v.x;
 			y += v.y;
@@ -88,6 +93,7 @@ class Ball {
 			pos = CustomVector(0, 0);
 			vel = CustomVector(1, 1);
 			vel.normalise();
+			vel.mult(4);
 		}
 
 		void update(Player p1, Player p2) {
@@ -101,6 +107,8 @@ class Ball {
 					// Hit
 					vel.x *= -1;
 					vel.y = -distance / 4;
+					vel.normalise();
+					vel.mult(4);
 				} else {
 					reset();
 				}
