@@ -9,6 +9,7 @@
 #define player2Pin A2
 
 #define ballSize 10
+#define ballSpeedMultiplier 10
 
 #define screenWidth 254
 #define minHeight  -127
@@ -93,40 +94,35 @@ class Ball {
 			pos = CustomVector(0, 0);
 			vel = CustomVector(1, 1);
 			vel.normalise();
-			vel.mult(4);
+			vel.mult(ballSpeedMultiplier);
 		}
 
 		void update(Player p1, Player p2) {
 			pos.add(vel);
 
 			// Collision Detection
-			if (pos.x - (ballSize / 2) <= -127) {
-				int distanceAbs = abs(p1.pos.y- pos.y);
-				int distance = p1.pos.y- pos.y;
-				if (distanceAbs < playerHeight / 2) {
-					// Hit
-					vel.x *= -1;
-					vel.y = -distance / 4;
-					vel.normalise();
-					vel.mult(4);
-				} else {
-					reset();
-				}
-			}
+			// Player 1
+			if ((pos.x - (ballSize / 2) <= -127 + playerWidth) && vel.x < 0) { handleHit(p1); }
 
-			if (pos.x + (ballSize / 2) >=  127) {
-				int distanceAbs = abs(p2.pos.y- pos.y);
-				int distance = p2.pos.y- pos.y;
-				if (distanceAbs < playerHeight / 2) {
-					// Hit
-					vel.x *= -1;
-					vel.y = -distance / 4;
-				} else {
-					reset();
-				}
-			}
+			// Player 2
+			if ((pos.x + (ballSize / 2) >=  127 - playerWidth) && vel.x > 0) { handleHit(p2); };
 
 			if (abs(pos.y) + (ballSize / 2) >= 127) { vel.y *= -1; }
+		}
+
+		void handleHit(Player player) {
+			int distanceAbs = abs(player.pos.y- pos.y);
+			int distance = player.pos.y- pos.y;
+			if (distanceAbs < playerHeight / 2) {
+				// Hit player
+				vel.x *= -1;
+				vel.y = -distance / 4;
+				vel.normalise();
+				vel.mult(ballSpeedMultiplier);
+			} else {
+				// Hit wall
+				reset();
+			}
 		}
 
 	private:
