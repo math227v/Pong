@@ -7,7 +7,7 @@
 
 #define player1Pin A1
 #define player2Pin A2
-
+#define penis "8=====D ---"
 #define ballSize 10
 
 #define screenWidth 254
