@@ -115,12 +115,12 @@ class Ball {
 		}
 
 		void handleHit(Player player) {
-			int distanceAbs = abs(player.pos.y- pos.y);
+			int distanceAbs = abs(player.pos.y - pos.y + (ballSize / 2));
 			int distance = player.pos.y- pos.y;
 			if (distanceAbs < playerHeight / 2) {
 				// Hit player
 				vel.x *= -1;
-				vel.y = -distance / 3;
+				vel.y = -distance / 3.5;
 				vel.setMag(ballSpeedMultiplier);
 			} else {
 				// Hit wall
