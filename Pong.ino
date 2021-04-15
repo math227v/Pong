@@ -115,7 +115,7 @@ class Ball {
 		}
 
 		void handleHit(Player player) {
-			int distanceAbs = abs(player.pos.y - pos.y + (ballSize / 2));
+			int distanceAbs = abs(player.pos.y - pos.y) - (ballSize / 2);
 			int distance = player.pos.y- pos.y;
 			if (distanceAbs < playerHeight / 2) {
 				// Hit player
@@ -154,11 +154,11 @@ void setup() {
 }
 
 void loop() {
-	int p1PosY1 = player1.pos.y- (playerHeight / 2);
-	int p1PosY2 = player1.pos.y+ (playerHeight / 2);
+	int p1PosY1 = player1.pos.y - (playerHeight / 2);
+	int p1PosY2 = player1.pos.y + (playerHeight / 2);
 
-	int p2PosY1 = player2.pos.y- (playerHeight / 2);
-	int p2PosY2 = player2.pos.y+ (playerHeight / 2);
+	int p2PosY1 = player2.pos.y - (playerHeight / 2);
+	int p2PosY2 = player2.pos.y + (playerHeight / 2);
 
 
 	#ifdef drawBorder
