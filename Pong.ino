@@ -19,6 +19,8 @@
 
 #define drawBorder
 
+#define pikHoved Tommy
+
 // Initialising with a default
 int delayTime = 1000;
 
